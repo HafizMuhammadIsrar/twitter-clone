@@ -5,19 +5,19 @@ import { useState } from "react";
 import profile from "@/images/profile.png";
 import {
   FaHome,
-  FaCog,
   FaTwitter,
   FaBell,
   FaEnvelope,
   FaBookmark,
   FaList,
   FaUser,
+  FaSearch,
   FaEllipsisH,
 } from "react-icons/fa";
 
 const sidebarItems = [
   { href: "/dashboard", label: "Home", icon: <FaHome /> },
-  { href: "/dashboard/explore", label: "Explore", icon: <FaCog /> },
+  { href: "/dashboard/explore", label: "Explore", icon: <FaSearch /> },
   {
     href: "/dashboard/notifications",
     label: "Notifications",
@@ -35,7 +35,7 @@ export default function Sidebar() {
 
   return (
     <aside className="w-[300px] min-h-screen  border-r-[1px]   flex flex-col gap-3 items-center p-5 px-10">
-      <div className="icon">
+      <div className="icon w-full text-left px-9 ">
         <FaTwitter color="#198ED6" size="30px" />
       </div>
       <nav className=" px-6  w-full">

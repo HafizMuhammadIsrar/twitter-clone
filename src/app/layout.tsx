@@ -1,22 +1,18 @@
 "use client";
 
-// import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Lato } from "next/font/google";
 import "./globals.css";
 import { Provider } from "react-redux";
 import store, { persistor } from "@/redux/store";
 import { metadata } from "@/components/metaData";
 import { PersistGate } from "redux-persist/integration/react";
-// const geistSans = localFont({
-//   src: "./fonts/GeistVF.woff",
-//   variable: "--font-geist-sans",
-//   weight: "100 900",
-// });
-// const geistMono = localFont({
-//   src: "./fonts/GeistMonoVF.woff",
-//   variable: "--font-geist-mono",
-//   weight: "100 900",
-// });
+
+// Configure Lato font with specified weights
+const lato = Lato({
+  weight: ["400", "700"], // specify weights if needed
+  subsets: ["latin"],
+  variable: "--font-lato",
+});
 
 export default function RootLayout({
   children,
@@ -35,7 +31,8 @@ export default function RootLayout({
           content={metadata.description || "Default description"}
         />
       </head>
-      <body className={` antialiased`}>
+      {/* Apply the Lato font class to the body */}
+      <body className={`${lato.variable} antialiased`}>
         <PersistGate persistor={persistor}>
           <Provider store={store}>{children}</Provider>
         </PersistGate>

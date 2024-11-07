@@ -8,9 +8,10 @@ import {
   FaShare,
   FaUserPlus,
 } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import profile from "@/images/profile.png";
+import { addComment } from "@/redux/slices/postsSlice";
 
 export const WhoToFollow = () => {
   // Initialize suggested users with follow status
@@ -108,6 +109,7 @@ export const WhoToFollow = () => {
 };
 
 export const TwitterPost = ({
+  postId,
   profilePic,
   name,
   username,
@@ -118,34 +120,76 @@ export const TwitterPost = ({
   shares,
   image,
 }: any) => {
-  // Local state to track likes and whether the post is liked
+  const dispatch = useDispatch();
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(likes);
+  const [commentText, setCommentText] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Toggle like status
   const handleLikeToggle = () => {
-    if (liked) {
-      setLikesCount(likesCount - 1);
-    } else {
-      setLikesCount(likesCount + 1);
-    }
+    setLikesCount(liked ? likesCount - 1 : likesCount + 1);
     setLiked(!liked);
   };
 
+  const handleCommentSubmit = () => {
+    if (commentText.trim()) {
+      dispatch(
+        addComment({
+          postId,
+          comment: {
+            id: Date.now(),
+            text: commentText,
+            author: username,
+            timestamp: new Date().toISOString(),
+          },
+        })
+      );
+      setCommentText("");
+      setIsModalOpen(false);
+    }
+  };
+
+  // Close modal when clicking outside
+  const handleModalClick = (e: any) => {
+    if (e.target.id === "modal-backdrop") {
+      setIsModalOpen(false);
+    }
+  };
+
+  const getTimeDifference = (timestamp: string) => {
+    const postTime = new Date(timestamp);
+    const now = new Date();
+    const differenceInMs = now.getTime() - postTime.getTime();
+
+    // Calculate time differences in seconds, minutes, and hours
+    const seconds = Math.floor(differenceInMs / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+
+    if (seconds < 60) return "just now";
+    if (minutes < 60) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+    if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+
+    // If more than 24 hours, return the time in HH:mm format
+    return postTime.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
-    <div className="flex p-4 border-b bg-white hover:bg-[#F5F8FA]  border-gray-200 max-w-full">
+    <div className="flex p-4 border-b bg-white hover:bg-[#F5F8FA] border-gray-200 max-w-full">
       {/* Profile Picture */}
       <Image
+        src={profilePic}
         width={100}
         height={100}
-        src={profilePic}
         alt="Profile"
         className="w-12 h-12 rounded-full mr-4"
       />
 
-      {/* Post Content */}
       <div className="flex-1">
-        {/* Name and Time */}
+        {/* Post Header */}
         <div className="flex items-center">
           <span className="font-bold">{name}</span>
           <span className="text-gray-500 ml-2">@{username}</span>
@@ -153,10 +197,9 @@ export const TwitterPost = ({
           <span className="text-gray-500">{time}</span>
         </div>
 
-        {/* Post Text */}
+        {/* Post Content */}
         <p className="my-2 text-gray-800">{content}</p>
 
-        {/* Optional Image */}
         {image && (
           <Image
             src={image}
@@ -167,11 +210,14 @@ export const TwitterPost = ({
           />
         )}
 
-        {/* Actions: Comments, Likes, Shares */}
+        {/* Action Buttons */}
         <div className="flex justify-around mt-2 text-gray-500">
-          <button className="flex items-center hover:text-blue-500">
+          <button
+            className="flex items-center hover:text-blue-500"
+            onClick={() => setIsModalOpen(true)}
+          >
             <FaRegComment className="mr-1" />
-            {comments}
+            {comments?.length}
           </button>
           <button className="flex items-center hover:text-green-500">
             <FaRetweet className="mr-1" />
@@ -179,7 +225,9 @@ export const TwitterPost = ({
           </button>
           <button
             onClick={handleLikeToggle}
-            className={`flex items-center ${liked ? "text-red-500" : ""}`}
+            className={`flex items-center hover:text-red-500 ${
+              liked ? "text-red-500" : ""
+            }`}
           >
             <FaHeart className="mr-1" />
             {likesCount}
@@ -188,6 +236,75 @@ export const TwitterPost = ({
             <FaShare className="mr-1" />
           </button>
         </div>
+
+        {/* Modal */}
+        {isModalOpen && (
+          <div
+            id="modal-backdrop"
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={handleModalClick}
+          >
+            <div className="bg-white rounded-lg w-full max-w-lg mx-4 p-6">
+              {/* Modal Header */}
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold">Comments</h3>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Comments List */}
+              <div className="max-h-64 overflow-y-auto mb-4">
+                {comments.map((comment: any) => (
+                  <div
+                    key={comment.id}
+                    className="p-3 bg-gray-50 rounded-lg mb-2"
+                  >
+                    <div className="flex items-center gap-3 ">
+                      <div className="font-semibold">@{comment.author}</div>
+                      <div className="font-semibold">
+                        {getTimeDifference(comment.timestamp)}
+                      </div>
+                    </div>
+                    <div className="text-gray-600">{comment.text}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Comment Input */}
+              <textarea
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Write your comment..."
+                className="w-full p-2 border border-gray-300 rounded-lg mb-4 min-h-[100px] focus:outline-none focus:border-blue-500"
+              />
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCommentSubmit}
+                  disabled={!commentText.trim()}
+                  className={`px-4 py-2 bg-blue-500 text-white rounded-lg ${
+                    commentText.trim()
+                      ? "hover:bg-blue-600"
+                      : "opacity-50 cursor-not-allowed"
+                  }`}
+                >
+                  Comment
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -221,6 +338,8 @@ const Posts = () => {
     }))
   );
 
+  console.log(posts);
+
   return (
     <div>
       <div className="posts    ">
@@ -247,10 +366,11 @@ const Posts = () => {
               username="johndoe"
               time={item.timeString}
               content={item.content}
-              comments={24}
-              likes={150}
-              shares={12}
+              comments={item.comments}
+              likes={0}
+              shares={0}
               image={item.image}
+              postId={item.id}
             />
           </div>
         ))}

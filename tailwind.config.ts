@@ -14,9 +14,9 @@ const config: Config = {
       },
       
       fontFamily: {
-        custom:["Qwitcher Grypen", 'cursive']
-        // sans: ["Lato", 'sans-serif'], // Using Google Font
-        // custom: ['CustomFont', 'sans-serif'], // Using locally hosted font
+        // custom:["Qwitcher Grypen", 'cursive']
+        custom:["Lato", "sans-serif"]
+      
       },
     },
   },

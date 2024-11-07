@@ -23,9 +23,11 @@ const Header = () => {
     if (!content.trim() && !selectedImage) return; // Prevent empty posts
 
     const newPost = {
+      id: Date.now(), // Generate a unique ID
       content,
       image: imagePreview,
       timestamp: new Date().toISOString(),
+      comments: [],
     };
 
     dispatch(addPost(newPost));
