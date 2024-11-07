@@ -12,6 +12,12 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      
+      fontFamily: {
+        custom:["Qwitcher Grypen", 'cursive']
+        // sans: ["Lato", 'sans-serif'], // Using Google Font
+        // custom: ['CustomFont', 'sans-serif'], // Using locally hosted font
+      },
     },
   },
   plugins: [],
