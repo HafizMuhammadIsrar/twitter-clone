@@ -12,7 +12,7 @@ export default function Home() {
           route.push("/dashboard");
         }}
       >
-        Click Go to dashboard
+        Click here to Go dashboard
       </button>
     </div>
   );
