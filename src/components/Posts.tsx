@@ -265,7 +265,7 @@ export const TwitterPost = ({
                   >
                     <div className="flex items-center gap-3 ">
                       <div className="font-semibold">@{comment.author}</div>
-                      <div className="font-semibold">
+                      <div className="">
                         {getTimeDifference(comment.timestamp)}
                       </div>
                     </div>
